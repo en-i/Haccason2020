@@ -312,6 +312,12 @@
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/2018.4.10f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
  </Reference>
+ <Reference Include="DOTween">
+ <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Assets/Demigiant/DOTween/DOTween.dll</HintPath>
+ </Reference>
+ <Reference Include="DOTweenEditor">
+ <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Assets/Demigiant/DOTween/Editor/DOTweenEditor.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Library/PackageCache/com.unity.ads@2.0.8/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>
@@ -326,12 +332,6 @@
  </Reference>
  <Reference Include="UnityEditor.Purchasing">
  <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Library/PackageCache/com.unity.purchasing@2.0.3/Editor/UnityEditor.Purchasing.dll</HintPath>
- </Reference>
- <Reference Include="DOTweenEditor">
- <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Assets/Demigiant/DOTween/Editor/DOTweenEditor.dll</HintPath>
- </Reference>
- <Reference Include="DOTween">
- <HintPath>/Users/teradaenishi/Desktop/Haccason/Library/Haccason/Assets/Demigiant/DOTween/DOTween.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/2018.4.10f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
