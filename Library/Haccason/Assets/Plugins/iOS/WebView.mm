@@ -96,9 +96,10 @@ extern "C" void UnitySendMessage(const char *, const char *, const char *);
     BOOL alertDialogEnabled;
     NSRegularExpression *allowRegex;
     NSRegularExpression *denyRegex;
+    NSRegularExpression *hookRegex;
+    NSString *basicAuthUserName;
+    NSString *basicAuthPassword;
 }
-- (void)dispose;
-+ (void)clearCookies;
 @end
 
 @implementation CWebViewPlugin
@@ -115,6 +116,9 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
     alertDialogEnabled = true;
     allowRegex = nil;
     denyRegex = nil;
+    hookRegex = nil;
+    basicAuthUserName = nil;
+    basicAuthPassword = nil;
     if (ua != NULL && strcmp(ua, "") != 0) {
         [[NSUserDefaults standardUserDefaults]
             registerDefaults:@{ @"UserAgent": [[NSString alloc] initWithUTF8String:ua] }];
@@ -174,6 +178,9 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
         [webView0 removeFromSuperview];
         [webView0 removeObserver:self forKeyPath:@"loading"];
     }
+    basicAuthPassword = nil;
+    basicAuthUserName = nil;
+    hookRegex = nil;
     denyRegex = nil;
     allowRegex = nil;
     customRequestHeader = nil;
@@ -206,6 +213,18 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
                                                    modifiedSince:date
                                                completionHandler:^{}];
     }
+}
+
++ saveCookies
+{
+    // cf. https://stackoverflow.com/questions/33156567/getting-all-cookies-from-wkwebview/49744695#49744695
+    _sharedProcessPool = [[WKProcessPool alloc] init];
+    [_instances enumerateObjectsUsingBlock:^(CWebViewPlugin *obj, NSUInteger idx, BOOL *stop) {
+        if ([obj->webView isKindOfClass:[WKWebView class]]) {
+            WKWebView *webView = (WKWebView *)obj->webView;
+            webView.configuration.processPool = _sharedProcessPool;
+        }
+    }];
 }
 
 + (const char *)getCookies:(const char *)url
@@ -324,6 +343,10 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
         UnitySendMessage([gameObjectName UTF8String], "CallFromJS", [[url substringFromIndex:6] UTF8String]);
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
+    } else if (hookRegex != nil && [hookRegex firstMatchInString:url options:0 range:NSMakeRange(0, url.length)]) {
+        UnitySendMessage([gameObjectName UTF8String], "CallOnHooked", [url UTF8String]);
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
     } else if (![url hasPrefix:@"about:blank"]  // for loadHTML(), cf. #365
                && ![url hasPrefix:@"file:"]
                && ![url hasPrefix:@"http:"]
@@ -435,6 +458,20 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
     [UnityGetGLViewController() presentViewController:alertController animated:YES completion:^{}];
 }
 
+- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential *))completionHandler
+{
+    NSURLSessionAuthChallengeDisposition disposition;
+    NSURLCredential *credential;
+    if (basicAuthUserName && basicAuthPassword && [challenge previousFailureCount] == 0) {
+        disposition = NSURLSessionAuthChallengeUseCredential;
+        credential = [NSURLCredential credentialWithUser:basicAuthUserName password:basicAuthPassword persistence:NSURLCredentialPersistenceForSession];
+    } else {
+        disposition = NSURLSessionAuthChallengePerformDefaultHandling;
+        credential = nil;
+    }
+    completionHandler(disposition, credential);
+}
+
 - (BOOL)isSetupedCustomHeader:(NSURLRequest *)targetRequest
 {
     // Check for additional custom header.
@@ -502,11 +539,12 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
     [webView setScrollBounce:enabled];
 }
 
-- (BOOL)setURLPattern:(const char *)allowPattern and:(const char *)denyPattern
+- (BOOL)setURLPattern:(const char *)allowPattern and:(const char *)denyPattern and:(const char *)hookPattern
 {
     NSError *err = nil;
     NSRegularExpression *allow = nil;
     NSRegularExpression *deny = nil;
+    NSRegularExpression *hook = nil;
     if (allowPattern == nil || *allowPattern == '\0') {
         allow = nil;
     } else {
@@ -531,8 +569,21 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
             return NO;
         }
     }
+    if (hookPattern == nil || *hookPattern == '\0') {
+        hook = nil;
+    } else {
+        hook
+            = [NSRegularExpression
+                regularExpressionWithPattern:[NSString stringWithUTF8String:hookPattern]
+                                     options:0
+                                       error:&err];
+        if (err != nil) {
+            return NO;
+        }
+    }
     allowRegex = allow;
     denyRegex = deny;
+    hookRegex = hook;
     return YES;
 }
 
@@ -638,6 +689,12 @@ static NSMutableArray *_instances = [[NSMutableArray alloc] init];
     strcpy(r, s);
     return r;
 }
+
+- (void)setBasicAuthInfo:(const char *)userName password:(const char *)password
+{
+    basicAuthUserName = [NSString stringWithUTF8String:userName];
+    basicAuthPassword = [NSString stringWithUTF8String:password];
+}
 @end
 
 extern "C" {
@@ -648,7 +705,7 @@ extern "C" {
     void _CWebViewPlugin_SetVisibility(void *instance, BOOL visibility);
     void _CWebViewPlugin_SetAlertDialogEnabled(void *instance, BOOL visibility);
     void _CWebViewPlugin_SetScrollBounceEnabled(void *instance, BOOL enabled);
-    BOOL _CWebViewPlugin_SetURLPattern(void *instance, const char *allowPattern, const char *denyPattern);
+    BOOL _CWebViewPlugin_SetURLPattern(void *instance, const char *allowPattern, const char *denyPattern, const char *hookPattern);
     void _CWebViewPlugin_LoadURL(void *instance, const char *url);
     void _CWebViewPlugin_LoadHTML(void *instance, const char *html, const char *baseUrl);
     void _CWebViewPlugin_EvaluateJS(void *instance, const char *url);
@@ -661,8 +718,10 @@ extern "C" {
     void _CWebViewPlugin_RemoveCustomHeader(void *instance, const char *headerKey);
     void _CWebViewPlugin_ClearCustomHeader(void *instance);
     void _CWebViewPlugin_ClearCookies();
+    void _CWebViewPlugin_SaveCookies();
     const char *_CWebViewPlugin_GetCookies(const char *url);
     const char *_CWebViewPlugin_GetCustomHeaderValue(void *instance, const char *headerKey);
+    void _CWebViewPlugin_SetBasicAuthInfo(void *instance, const char *userName, const char *password);
 }
 
 void *_CWebViewPlugin_Init(const char *gameObjectName, BOOL transparent, const char *ua, BOOL enableWKWebView)
@@ -717,12 +776,12 @@ void _CWebViewPlugin_SetScrollBounceEnabled(void *instance, BOOL enabled)
     [webViewPlugin setScrollBounceEnabled:enabled];
 }
 
-BOOL _CWebViewPlugin_SetURLPattern(void *instance, const char *allowPattern, const char *denyPattern)
+BOOL _CWebViewPlugin_SetURLPattern(void *instance, const char *allowPattern, const char *denyPattern, const char *hookPattern)
 {
     if (instance == NULL)
         return NO;
     CWebViewPlugin *webViewPlugin = (__bridge CWebViewPlugin *)instance;
-    return [webViewPlugin setURLPattern:allowPattern and:denyPattern];
+    return [webViewPlugin setURLPattern:allowPattern and:denyPattern and:hookPattern];
 }
 
 void _CWebViewPlugin_LoadURL(void *instance, const char *url)
@@ -818,6 +877,11 @@ void _CWebViewPlugin_ClearCookies()
     [CWebViewPlugin clearCookies];
 }
 
+void _CWebViewPlugin_SaveCookies()
+{
+    [CWebViewPlugin saveCookies];
+}
+
 const char *_CWebViewPlugin_GetCookies(const char *url)
 {
     return [CWebViewPlugin getCookies:url];
@@ -829,6 +893,14 @@ const char *_CWebViewPlugin_GetCustomHeaderValue(void *instance, const char *hea
         return NULL;
     CWebViewPlugin *webViewPlugin = (__bridge CWebViewPlugin *)instance;
     return [webViewPlugin getCustomRequestHeaderValue:headerKey];
+}
+
+void _CWebViewPlugin_SetBasicAuthInfo(void *instance, const char *userName, const char *password)
+{
+    if (instance == NULL)
+        return;
+    CWebViewPlugin *webViewPlugin = (__bridge CWebViewPlugin *)instance;
+    [webViewPlugin setBasicAuthInfo:userName password:password];
 }
 
 #endif // !(__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_9_0)

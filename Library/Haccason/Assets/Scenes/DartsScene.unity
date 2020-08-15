@@ -126,7 +126,7 @@ GameObject:
   - component: {fileID: 866933}
   - component: {fileID: 866931}
   m_Layer: 5
-  m_Name: Image (4)
+  m_Name: 5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -295,7 +295,7 @@ GameObject:
   - component: {fileID: 252219955}
   - component: {fileID: 252219954}
   m_Layer: 5
-  m_Name: Image (3)
+  m_Name: 4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -604,7 +604,7 @@ GameObject:
   - component: {fileID: 553030199}
   - component: {fileID: 553030198}
   m_Layer: 5
-  m_Name: Image (7)
+  m_Name: 8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -704,7 +704,7 @@ GameObject:
   - component: {fileID: 600224722}
   - component: {fileID: 600224721}
   m_Layer: 5
-  m_Name: Image (6)
+  m_Name: 7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -976,7 +976,7 @@ GameObject:
   - component: {fileID: 1143782759}
   - component: {fileID: 1143782758}
   m_Layer: 5
-  m_Name: Image (5)
+  m_Name: 6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1173,7 +1173,7 @@ GameObject:
   - component: {fileID: 1814701037}
   - component: {fileID: 1814701036}
   m_Layer: 5
-  m_Name: Image (2)
+  m_Name: 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1338,8 +1338,9 @@ GameObject:
   - component: {fileID: 2093618450}
   - component: {fileID: 2093618453}
   - component: {fileID: 2093618449}
+  - component: {fileID: 2093618452}
   m_Layer: 5
-  m_Name: Image
+  m_Name: 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1412,6 +1413,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2093618447}
   m_CullTransparentMesh: 0
+--- !u!114 &2093618452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2093618447}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1fbec2dd042c495dab6fabed66d34c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sprites:
+  - {fileID: 21300000, guid: 195c64cd763794c56a95f2a1d92ab773, type: 3}
+  - {fileID: 21300000, guid: 195c64cd763794c56a95f2a1d92ab773, type: 3}
+  - {fileID: 21300000, guid: 195c64cd763794c56a95f2a1d92ab773, type: 3}
 --- !u!135 &2093618453
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1439,7 +1456,7 @@ GameObject:
   - component: {fileID: 2124859706}
   - component: {fileID: 2124859705}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
