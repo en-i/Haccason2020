@@ -15,22 +15,27 @@ public class Rotate : MonoBehaviour {
     //画像のZ値
     public int z = 360;
 
+    //ダーツが刺さったことを判定
     public static bool decide;
 
+    //tweenの管理
     Tweener tweener;
 
     //回転させる速度
     public int rotateSecond = 8;
+
     // Start is called before the first frame update
     void Start () {
         decide = false;
+        //回転開始
         StartCoroutine ("rotate");
     }
 
     // Update is called once per frame
     void Update () {
+        //刺さった時
         if (decide) {
-            StartCoroutine("openWeb");
+            StartCoroutine ("openWeb");
         }
 
     }
@@ -41,8 +46,9 @@ public class Rotate : MonoBehaviour {
             .SetLoops (-1);
         yield return null;
     }
-
+    //レシピを開く
     IEnumerator openWeb () {
+        //回転停止
         tweener.Kill ();
         yield return new WaitForSeconds (1);
         SceneManager.LoadScene ("WebViewScene");
