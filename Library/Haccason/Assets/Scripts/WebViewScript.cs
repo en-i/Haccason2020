@@ -10,7 +10,7 @@ public class WebViewScript : MonoBehaviour {
 
     string SearchURL = "https://recipe.rakuten.co.jp/search/";
 
-    string[, ] urls = new string[3, 8] { { "肉じゃが", "とんかつ", "唐揚げ", "チキン南蛮", "魚の煮付け", "生姜焼き", "丼", "天ぷら" }, 
+    public static string[, ] urls = new string[3, 8] { { "かつ", "肉じゃが", "生姜焼き", "魚の煮付け", "チキン南蛮", "海鮮丼", "唐揚げ", "天ぷら" }, 
                                          { "ハンバーグ", "カレー", "グラタン", "パスタ", "シチュー", "オムライス", "ロールキャベツ", "ステーキ" },
                                          {"麻婆豆腐","回鍋肉","八宝菜","酢豚","餃子","青椒肉絲","エビチリ","棒棒鶏"} };
 

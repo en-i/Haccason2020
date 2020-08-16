@@ -17,6 +17,9 @@ public class ChangeSprite : MonoBehaviour {
     //当たった料理を判定
     public static int urlName;
 
+    //料理名が取得できたことを確認
+    public static bool getName;
+
     // Start is called before the first frame update
     void Start () {
         //imageの取得、Spriteの変更
@@ -35,5 +38,6 @@ public class ChangeSprite : MonoBehaviour {
         Rotate.decide = true;
         //オブジェクト名から当たった部分を判定
         urlName = int.Parse (image.transform.name);
+        getName = true;
     }
 }
